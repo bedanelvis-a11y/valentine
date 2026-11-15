@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LOVE ME</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #ff4d79;
+    --rose-deep: #d81b60;
+    --wine: #2a0a18;
+    --blush: #ffd6e0;
+    --gold: #f5c77e;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    color: var(--blush);
+    background:
+      radial-gradient(900px 600px at 15% 10%, rgba(255, 77, 121, .28), transparent 60%),
+      radial-gradient(800px 600px at 90% 90%, rgba(216, 27, 96, .30), transparent 60%),
+      linear-gradient(160deg, #3b0d22 0%, #2a0a18 55%, #1a0610 100%);
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* floating hearts in the background */
+  #hearts { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  .heart {
+    position: absolute; bottom: -60px;
+    color: var(--rose); opacity: .0;
+    animation: floatUp linear forwards;
+    filter: drop-shadow(0 0 8px rgba(255, 77, 121, .55));
+    user-select: none;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: .75; }
+    90%  { opacity: .55; }
+    100% { transform: translateY(-115vh) translateX(var(--drift, 30px)) rotate(var(--spin, 25deg)); opacity: 0; }
+  }
+
+  main {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 28px 18px 40px;
+    text-align: center;
+  }
+
+  .brand {
+    font-family: "Montserrat", system-ui, sans-serif;
+    font-weight: 600; letter-spacing: .5em; font-size: .8rem;
+    color: var(--gold); text-transform: uppercase; margin-bottom: 6px;
+    padding-left: .5em;
+  }
+  .brand span { color: var(--rose); }
+
+  h1 {
+    font-family: "Great Vibes", cursive;
+    font-weight: 400;
+    font-size: clamp(3rem, 11vw, 6.2rem);
+    line-height: 1.05; margin: 8px 0 8px;
+    color: #fff;
+    text-shadow: 0 0 18px rgba(255, 77, 121, .65), 0 0 46px rgba(255, 77, 121, .35);
+  }
+  .tagline {
+    font-style: italic; font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+    color: var(--blush); opacity: .85; margin: 0 0 30px;
+  }
+
+  .card {
+    width: min(680px, 100%);
+    padding: 36px 24px 34px;
+    border-radius: 26px;
+    background: linear-gradient(160deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+    border: 1px solid rgba(255, 214, 224, .22);
+    box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .bear { font-size: 3.4rem; margin-bottom: 4px; animation: beat 1.6s ease-in-out infinite; display: inline-block; }
+  @keyframes beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+
+  .question {
+    font-family: "Great Vibes", cursive;
+    font-size: clamp(2.2rem, 7vw, 3.6rem);
+    margin: 4px 0 6px; color: #fff; line-height: 1.15;
+  }
+  .hint { min-height: 1.6em; margin: 0 0 24px; font-style: italic; color: var(--gold); font-size: 1.15rem; }
+
+  .choices {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 16px 22px;
+  }
+  button {
+    font-family: "Montserrat", system-ui, sans-serif;
+    font-weight: 600; letter-spacing: .08em;
+    border: 0; cursor: pointer; border-radius: 999px;
+    transition: transform .2s ease, box-shadow .25s ease, background .25s ease;
+  }
+  button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+
+  #yes {
+    --size: 1.05rem;
+    font-size: var(--size);
+    padding: calc(var(--size) * .85) calc(var(--size) * 2.4);
+    color: #fff;
+    background: linear-gradient(135deg, #ff6b94, var(--rose-deep));
+    box-shadow: 0 10px 30px rgba(255, 77, 121, .5), 0 0 0 0 rgba(255, 77, 121, .6);
+    animation: glow 2.2s ease-out infinite;
+    max-width: 100%;
+  }
+  #yes:hover { transform: translateY(-2px) scale(1.03); }
+  @keyframes glow { 0% { box-shadow: 0 10px 30px rgba(255,77,121,.5), 0 0 0 0 rgba(255,77,121,.55); } 70%, 100% { box-shadow: 0 10px 30px rgba(255,77,121,.5), 0 0 0 22px rgba(255,77,121,0); } }
+  #yes.huge { width: 100%; }
+
+  #no {
+    font-size: .95rem;
+    padding: 14px 30px;
+    color: var(--blush);
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 214, 224, .35);
+    flex: 0 0 auto;
+  }
+  #no:hover { background: rgba(255, 255, 255, .15); }
+
+  /* Poem view */
+  #poemView { display: none; }
+  .poem-title {
+    font-family: "Great Vibes", cursive; font-size: clamp(2.4rem, 8vw, 4rem);
+    color: #fff; margin: 0 0 4px;
+    text-shadow: 0 0 22px rgba(255,77,121,.6);
+  }
+  .poem-sub { font-style: italic; color: var(--gold); margin: 0 0 22px; font-size: 1.2rem; }
+  .stanza { margin: 0 0 22px; }
+  .stanza p {
+    margin: 4px 0; font-size: clamp(1.15rem, 3vw, 1.45rem); line-height: 1.55; color: var(--blush);
+    opacity: 0; transform: translateY(10px);
+    animation: lineIn .9s ease forwards;
+  }
+  .stanza.last p { color: #fff; font-style: italic; font-weight: 600; }
+  @keyframes lineIn { to { opacity: 1; transform: translateY(0); } }
+  .sign { font-family: "Great Vibes", cursive; font-size: 2rem; color: var(--gold); margin-top: 6px; opacity: 0; animation: lineIn 1s ease forwards; }
+  #again {
+    margin-top: 22px; font-size: .8rem; padding: 12px 26px;
+    background: transparent; color: var(--blush); border: 1px solid rgba(255,214,224,.4);
+    opacity: 0; animation: lineIn 1s ease forwards;
+  }
+  #again:hover { background: rgba(255,255,255,.1); }
+
+  .burst {
+    position: fixed; pointer-events: none; z-index: 5; font-size: 1.6rem;
+    animation: burst 1.6s ease-out forwards;
+  }
+  @keyframes burst {
+    0%   { transform: translate(0,0) scale(.4); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(var(--rot)); opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .heart, .bear, #yes, .burst { animation: none !important; }
+    .stanza p, .sign, #again { animation-duration: .01s !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="hearts" aria-hidden="true"></div>
+
+<main>
+  <div class="brand">Love<span>·</span>Me</div>
+  <h1>LOVE ME</h1>
+  <p class="tagline">A little question, from a very hopeful heart.</p>
+
+  <section class="card" id="card">
+
+    <!-- Question view -->
+    <div id="askView">
+      <div class="bear" aria-hidden="true">💖</div>
+      <h2 class="question">Will you be my date?</h2>
+      <p class="hint" id="hint" aria-live="polite">Say yes... pretty please 🌹</p>
+      <div class="choices">
+        <button id="yes" type="button">YES 💗</button>
+        <button id="no" type="button">NO</button>
+      </div>
+    </div>
+
+    <!-- Poem view -->
+    <div id="poemView" aria-live="polite">
+      <div class="bear" aria-hidden="true">💞</div>
+      <h2 class="poem-title">You said yes!</h2>
+      <p class="poem-sub">So this one is for you...</p>
+
+      <div class="stanza">
+        <p>Under a sky of softly burning stars,</p>
+        <p>I found a light that carries your name.</p>
+        <p>Every road I walked, however far,</p>
+        <p>led me quietly back to the same flame.</p>
+      </div>
+      <div class="stanza">
+        <p>Your laughter is my favorite melody,</p>
+        <p>your eyes, the harbor where my storms grow still.</p>
+        <p>If tonight were only a small mystery,</p>
+        <p>I'd spend it solving you, and always will.</p>
+      </div>
+      <div class="stanza">
+        <p>So take my hand, let evening be our guide,</p>
+        <p>through candlelight and whispered, golden hours.</p>
+        <p>With you, my heart has nothing left to hide,</p>
+        <p>it blooms like roses, wild among the flowers.</p>
+      </div>
+      <div class="stanza last">
+        <p>Tonight, and every night, my answer's true:</p>
+        <p>I'm yours, my love. I'm glad you chose me too.</p>
+      </div>
+      <div class="sign">Forever yours 💋</div>
+      <button id="again" type="button">Ask again</button>
+    </div>
+
+  </section>
+</main>
+
+<script>
+  // ---------- floating background hearts ----------
+  var heartsLayer = document.getElementById('hearts');
+  var glyphs = ['♥', '❤', '💗', '💕', '♡'];
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function spawnHeart() {
+    if (reduceMotion) return;
+    var h = document.createElement('span');
+    h.className = 'heart';
+    h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.fontSize = (14 + Math.random() * 30) + 'px';
+    var dur = 9 + Math.random() * 9;
+    h.style.animationDuration = dur + 's';
+    h.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+    h.style.setProperty('--spin', (Math.random() * 80 - 40) + 'deg');
+    heartsLayer.appendChild(h);
+    setTimeout(function () { h.remove(); }, dur * 1000 + 200);
+  }
+  setInterval(spawnHeart, 650);
+  for (var i = 0; i < 8; i++) setTimeout(spawnHeart, i * 150);
+
+  // ---------- the question ----------
+  var yes = document.getElementById('yes');
+  var no = document.getElementById('no');
+  var hint = document.getElementById('hint');
+  var askView = document.getElementById('askView');
+  var poemView = document.getElementById('poemView');
+
+  var noMessages = [
+    "Are you sure? 🥺",
+    "Think again, my love...",
+    "You're breaking my heart 💔",
+    "Pretty please? 🌹",
+    "I'll bring chocolates 🍫",
+    "I'll even bring flowers 💐",
+    "Look how big YES is getting!",
+    "YES is the only option now 😌",
+    "Okay, just click YES 💘"
+  ];
+  var noCount = 0;
+  var size = 1.05;           // rem, starting size of the YES button
+  var MAX_SIZE = 5.2;        // rem cap so the page stays usable
+
+  // Only YES grows. NO never changes size.
+  no.addEventListener('click', function () {
+    noCount++;
+    size = Math.min(size * 1.28, MAX_SIZE);
+    yes.style.setProperty('--size', size + 'rem');
+    if (size >= MAX_SIZE) yes.classList.add('huge');
+    hint.textContent = noMessages[Math.min(noCount - 1, noMessages.length - 1)];
+    no.textContent = noCount < 3 ? 'NO' : (noCount < 6 ? 'no...' : 'n...o');
+  });
+
+  // ---------- heart burst + poem ----------
+  function burst() {
+    var burstGlyphs = ['💖', '💗', '💕', '❤️', '🌹', '✨'];
+    var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    for (var i = 0; i < 36; i++) {
+      var b = document.createElement('span');
+      b.className = 'burst';
+      b.textContent = burstGlyphs[Math.floor(Math.random() * burstGlyphs.length)];
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 120 + Math.random() * 320;
+      b.style.left = cx + 'px';
+      b.style.top = cy + 'px';
+      b.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      b.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      b.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+      document.body.appendChild(b);
+      setTimeout((function (el) { return function () { el.remove(); }; })(b), 1700);
+    }
+  }
+
+  yes.addEventListener('click', function () {
+    askView.style.display = 'none';
+    poemView.style.display = 'block';
+    if (!reduceMotion) burst();
+
+    // stagger each poem line so it appears like it's being read aloud
+    var lines = poemView.querySelectorAll('.stanza p');
+    var delay = 0.5;
+    lines.forEach(function (p) {
+      p.style.animationDelay = delay + 's';
+      delay += 0.55;
+    });
+    poemView.querySelector('.sign').style.animationDelay = delay + 's';
+    document.getElementById('again').style.animationDelay = (delay + 0.6) + 's';
+
+    // restart animations when asked again
+    poemView.querySelectorAll('.stanza p, .sign, #again').forEach(function (el) {
+      el.style.animation = 'none';
+      void el.offsetWidth;
+      el.style.animation = '';
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.getElementById('again').addEventListener('click', function () {
+    poemView.style.display = 'none';
+    askView.style.display = 'block';
+    noCount = 0; size = 1.05;
+    yes.style.setProperty('--size', size + 'rem');
+    yes.classList.remove('huge');
+    no.textContent = 'NO';
+    hint.textContent = 'Say yes... pretty please 🌹';
+  });
+</script>
+</body>
+</html>
