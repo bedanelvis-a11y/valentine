@@ -4,16 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LOVE ME</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@500;600&display=swap" rel="stylesheet">
 <style>
+  /* Layout: one centered card (question, then poem and date picker).
+     Single committed look: deep wine background, rose and gold accents. */
   :root {
     --rose: #ff4d79;
     --rose-deep: #d81b60;
     --wine: #2a0a18;
     --blush: #ffd6e0;
     --gold: #f5c77e;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -21,6 +22,7 @@
     margin: 0;
     font-family: "Cormorant Garamond", Georgia, serif;
     color: var(--blush);
+    background-color: #2a0a18;
     background:
       radial-gradient(900px 600px at 15% 10%, rgba(255, 77, 121, .28), transparent 60%),
       radial-gradient(800px 600px at 90% 90%, rgba(216, 27, 96, .30), transparent 60%),
@@ -155,6 +157,41 @@
   }
   #again:hover { background: rgba(255,255,255,.1); }
 
+  /* Date & time picker */
+  .plan {
+    margin: 26px auto 0; padding: 22px 18px; max-width: 460px;
+    border-radius: 20px; border: 1px solid rgba(255,214,224,.25);
+    background: rgba(255,255,255,.06);
+    opacity: 0; animation: lineIn 1s ease forwards;
+  }
+  .plan h3 { font-family: "Great Vibes", cursive; font-weight: 400; font-size: 2.2rem; margin: 0 0 4px; color: #fff; }
+  .plan p { margin: 0 0 16px; font-style: italic; color: var(--gold); font-size: 1.1rem; }
+  .plan-fields { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .plan label {
+    display: flex; flex-direction: column; gap: 6px; text-align: left; flex: 1 1 170px; min-width: 0;
+    font-family: "Montserrat", system-ui, sans-serif; font-size: .7rem; font-weight: 600;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--blush);
+  }
+  .plan input {
+    font: inherit; font-size: 1rem; letter-spacing: 0; text-transform: none;
+    padding: 12px 14px; border-radius: 12px; color: #fff;
+    background: rgba(0,0,0,.28); border: 1px solid rgba(255,214,224,.35);
+    color-scheme: dark; width: 100%; min-width: 0;
+  }
+  .plan input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  #confirm {
+    display: inline-block; margin-top: 18px; font-family: "Montserrat", system-ui, sans-serif;
+    font-weight: 600; letter-spacing: .08em; font-size: 1rem; padding: 14px 30px; color: #fff;
+    text-decoration: none; border-radius: 999px;
+    background: linear-gradient(135deg, #ff6b94, var(--rose-deep));
+    box-shadow: 0 10px 30px rgba(255,77,121,.45);
+    transition: transform .2s ease, box-shadow .25s ease;
+  }
+  #confirm:hover { transform: translateY(-2px) scale(1.03); }
+  #confirm:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+  #confirm[aria-disabled="true"] { opacity: .5; cursor: not-allowed; transform: none; pointer-events: none; }
+  .plan-msg { min-height: 1.4em; margin: 12px 0 0 !important; color: var(--blush) !important; }
+
   .burst {
     position: fixed; pointer-events: none; z-index: 5; font-size: 1.6rem;
     animation: burst 1.6s ease-out forwards;
@@ -166,12 +203,11 @@
 
   @media (prefers-reduced-motion: reduce) {
     .heart, .bear, #yes, .burst { animation: none !important; }
-    .stanza p, .sign, #again { animation-duration: .01s !important; }
+    .stanza p, .sign, #again, .plan { animation-duration: .01s !important; }
   }
 </style>
 </head>
 <body>
-
 <div id="hearts" aria-hidden="true"></div>
 
 <main>
@@ -221,10 +257,22 @@
         <p>I'm yours, my love. I'm glad you chose me too.</p>
       </div>
       <div class="sign">Forever yours 💋</div>
+      <div class="plan" id="plan">
+        <h3>Pick our date 🌹</h3>
+        <p>When shall I take you out?</p>
+        <div class="plan-fields">
+          <label for="dateInput">Date <input type="date" id="dateInput"></label>
+          <label for="timeInput">Time <input type="time" id="timeInput" value="19:00"></label>
+        </div>
+        <a id="confirm" class="btn" href target="_blank" rel="noopener" aria-disabled="true">Send it to him 💌</a>
+        <p class="plan-msg" id="planMsg" aria-live="polite"></p>
+      </div>
+
       <button id="again" type="button">Ask again</button>
     </div>
 
   </section>
+
 </main>
 
 <script>
@@ -249,6 +297,14 @@
   }
   setInterval(spawnHeart, 650);
   for (var i = 0; i < 8; i++) setTimeout(spawnHeart, i * 150);
+
+  // ---------- date helpers ----------
+  function niceWhen(dateStr, timeStr) {
+    var d = new Date(dateStr + 'T' + (timeStr || '00:00'));
+    if (isNaN(d.getTime())) return dateStr + ' ' + (timeStr || '');
+    return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) +
+           ' at ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
 
   // ---------- the question ----------
   var yes = document.getElementById('yes');
@@ -315,10 +371,11 @@
       delay += 0.55;
     });
     poemView.querySelector('.sign').style.animationDelay = delay + 's';
-    document.getElementById('again').style.animationDelay = (delay + 0.6) + 's';
+    document.getElementById('plan').style.animationDelay = (delay + 0.6) + 's';
+    document.getElementById('again').style.animationDelay = (delay + 1.4) + 's';
 
     // restart animations when asked again
-    poemView.querySelectorAll('.stanza p, .sign, #again').forEach(function (el) {
+    poemView.querySelectorAll('.stanza p, .sign, #plan, #again').forEach(function (el) {
       el.style.animation = 'none';
       void el.offsetWidth;
       el.style.animation = '';
@@ -327,7 +384,38 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
+  // ---------- date & time picker ----------
+  var dateInput = document.getElementById('dateInput');
+  var timeInput = document.getElementById('timeInput');
+  var confirmBtn = document.getElementById('confirm');
+  var planMsg = document.getElementById('planMsg');
+
+  // no dates in the past
+  var t = new Date();
+  dateInput.min = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+
+  // Opens WhatsApp with the message ready. No number is stored in the page: she picks his chat herself.
+  function updateLink() {
+    var ready = !!(dateInput.value && timeInput.value);
+    confirmBtn.setAttribute('aria-disabled', ready ? 'false' : 'true');
+    confirmBtn.tabIndex = ready ? 0 : -1;
+    if (!ready) { confirmBtn.removeAttribute('href'); return; }
+    var text = 'I said YES, my love! 💖🥰 You just made me the happiest person alive. ' +
+               'Our date is on ' + niceWhen(dateInput.value, timeInput.value) + '. ' +
+               "I'm already counting the hours until I can hug you tight 🤗 and steal a kiss 😘💋. " +
+               "Can't wait 🌹💞 Forever yours ❤️";
+    confirmBtn.href = 'https://wa.me/?text=' + encodeURIComponent(text);
+  }
+  dateInput.addEventListener('input', updateLink);
+  timeInput.addEventListener('input', updateLink);
+  confirmBtn.addEventListener('click', function (e) {
+    if (confirmBtn.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
+    planMsg.textContent = 'Opening WhatsApp. Pick his chat and press send 💌';
+  });
+  updateLink();
+
   document.getElementById('again').addEventListener('click', function () {
+    dateInput.value = ''; timeInput.value = '19:00'; planMsg.textContent = ''; updateLink();
     poemView.style.display = 'none';
     askView.style.display = 'block';
     noCount = 0; size = 1.05;
